@@ -49,18 +49,15 @@ public class VenusRestClient {
             return client().sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenApplyAsync(response -> {
                         try {
-                            // Check for successful status code
                             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                                 // Deserialize the JSON response to the specified type
                                 return mapper.readValue(response.body(), responseType);
                             } else {
-                                // Handle non-successful responses
                                 throw new CompletionException(
                                         new RuntimeException("HTTP error: " + response.statusCode() +
                                                 ", Body: " + response.body()));
                             }
                         } catch (Exception e) {
-                            // Handle parsing errors
                             throw new CompletionException("Failed to parse response", e);
                         }
                     });
@@ -74,19 +71,6 @@ public class VenusRestClient {
             return failedFuture;
         }
     }
-
-    private static <T> T handleResponse(HttpResponse<String> response, Class<T> responseType) {
-        try {
-            if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                return mapper.readValue(response.body(), responseType);
-            } else {
-                throw new RuntimeException("HTTP error: " + response.statusCode());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to parse response", e);
-        }
-    }
-
 
     private static String authHeader() {
         String auth = USERNAME + ":" + PASSWORD;
