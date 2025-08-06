@@ -3,30 +3,34 @@ package com.neptunesoftware.venusWs.Services;
 
 import com.google.gson.Gson;
 import com.neptunesoftware.venusWs.Beans.VenusRestClient;
+import com.neptunesoftware.venusWs.Models.ApiResponse;
+import com.neptunesoftware.venusWs.Models.SMS;
 import com.neptunesoftware.venusWs.Models.TrxnSmsList;
 import com.neptunesoftware.venusWs.Models.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 
 @Service
-public class AlertService  implements AutoCloseable {
-
+public class AlertService implements AutoCloseable {
 
 
     public TrxnSmsList loadTransactionAlerts(String lastMsgId) {
-       try {
-           CompletableFuture<TrxnSmsList> future = VenusRestClient.postAsync(lastMsgId, "findTransactionAlerts", TrxnSmsList.class);
-           return future.join();
-       }
-       catch (Exception e) {
-           return new TrxnSmsList("96",
-                   "An error occurred while processing your request.", null);
-       }
+        try {
+            CompletableFuture<TrxnSmsList> future = VenusRestClient.postAsync(lastMsgId, "findTransactionAlerts", TrxnSmsList.class);
+
+            if (!future.join().responseCode.equals("00")) {
+                return new TrxnSmsList("96", "No records found", null);
+            } else
+                return new TrxnSmsList("0", "success", (List<SMS>) future.join().smsList);
+        } catch (Exception e) {
+            return new TrxnSmsList("96",
+                    "An error occurred while processing your request.", null);
+        }
     }
 
     public Update updateAccountStats(String acctNo, int msgCount) {
@@ -36,11 +40,11 @@ public class AlertService  implements AutoCloseable {
         try {
             String request = new Gson().toJson(requestMap);
             CompletableFuture<Update> future = VenusRestClient.postAsync(request, "updateAccountStats", Update.class);
-
-            return future.join();
-        }
-        catch (Exception e) {
-            System.out.println(e.getMessage());
+            if (!future.join().getErrorCode().equals("00")) {
+                return new Update("96", "No records found", null);
+            } else
+                return new Update("0", "success", future.join().getMsgId());
+        } catch (Exception e) {
             return new Update("96",
                     "An error occurred while processing your request ", null);
         }

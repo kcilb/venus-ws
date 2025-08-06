@@ -23,7 +23,7 @@ import java.util.concurrent.CompletionException;
 public class VenusRestClient {
 
     private static String USERNAME = "neptune";
-    private static String PASSWORD = "P@assw0rd";
+    private static String PASSWORD = "p@ssw0rd";
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
