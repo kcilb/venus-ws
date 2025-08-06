@@ -41,9 +41,9 @@ public class AlertService implements AutoCloseable {
             String request = new Gson().toJson(requestMap);
             CompletableFuture<Update> future = VenusRestClient.postAsync(request, "updateAccountStats", Update.class);
             if (!future.join().getErrorCode().equals("00")) {
-                return new Update("96", "No records found", null);
+                return new Update("92", "No updates were performed", null);
             } else
-                return new Update("0", "success", future.join().getMsgId());
+                return new Update("00", "success", future.join().getMsgId());
         } catch (Exception e) {
             return new Update("96",
                     "An error occurred while processing your request ", null);
