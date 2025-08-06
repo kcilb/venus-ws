@@ -24,9 +24,9 @@ public class AlertService implements AutoCloseable {
             CompletableFuture<TrxnSmsList> future = VenusRestClient.postAsync(lastMsgId, "findTransactionAlerts", TrxnSmsList.class);
 
             if (!future.join().responseCode.equals("00")) {
-                return new TrxnSmsList("96", "No records found", null);
+                return new TrxnSmsList("96", future.join().responseMsg, null);
             } else
-                return new TrxnSmsList("0", "success", (List<SMS>) future.join().smsList);
+                return new TrxnSmsList("0", future.join().responseMsg, (List<SMS>) future.join().smsList);
         } catch (Exception e) {
             return new TrxnSmsList("96",
                     "An error occurred while processing your request.", null);
@@ -41,9 +41,9 @@ public class AlertService implements AutoCloseable {
             String request = new Gson().toJson(requestMap);
             CompletableFuture<Update> future = VenusRestClient.postAsync(request, "updateAccountStats", Update.class);
             if (!future.join().getErrorCode().equals("00")) {
-                return new Update("92", "No updates were performed", null);
+                return new Update("92", future.join().getErrorDesc(), null);
             } else
-                return new Update("00", "success", future.join().getMsgId());
+                return new Update("00", future.join().getErrorDesc(), future.join().getMsgId());
         } catch (Exception e) {
             return new Update("96",
                     "An error occurred while processing your request ", null);
